@@ -58,12 +58,27 @@
                     $("#result").append("<br><br>REFRESH TOKEN IS:" + data.refresh_token);
                 });
             }
+            function getTaxcodes() {
+                $("#result").html('Loading...')
+                $.get("/app/getTaxcodes", function (data) {
+                    // console.log(data);
+                    // console.log(typeof(data));
+                    for (var key in data){
+                        console.log(key);
+                        $('#taxcode_select').append('<input type="radio" name="taxcode" value="'
+                                                    + data[key]
+                                                    +'"> '+key);
+                    }
+
+                })
+            }
             function import_invoice() {
                 $("#result").html('Loading...');
                 input_data = {'customer_ref': $('#customer_ref').val(),
                                'txn_date': $('#txn_date').val(),
                                'item': $('#item').val(),
-                               'amount': $('#amount').val() 
+                               'amount': $('#amount').val(),
+                               'taxcode': $("input[name=taxcode]:checked").val()
                                 };
                     $.ajax({
                         type: 'GET',
@@ -96,7 +111,9 @@
             <button onclick="revokeCall()">Revoke Token Call</button>
             <button onclick="myTokens()">My Tokens</button>
             <button onclick="new_access_token()">Get New Access Token</button>
-            
+            <br>
+            <button onclick="getTaxcodes()">Get TaxCodes</button>
+            <div id="taxcode_select"></div>
             <br>
             <br><input type=text id="customer_ref" placeholder="customer_ref"/>
             <br><input type=text id="txn_date" placeholder="txn_date"/>

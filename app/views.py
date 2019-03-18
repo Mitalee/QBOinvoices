@@ -251,6 +251,41 @@ def revoke(request):
         print(e.intuit_tid)
     return HttpResponse('Revoke successful')
 
+def get_taxcodes(request):
+    auth_client = AuthClient(
+        settings.CLIENT_ID, 
+        settings.CLIENT_SECRET, 
+        settings.REDIRECT_URI, 
+        settings.ENVIRONMENT, 
+        access_token=request.session.get('access_token', None), 
+        refresh_token=request.session.get('refresh_token', None), 
+        realm_id=request.session.get('realm_id', None),
+    )
+
+    if auth_client.access_token is not None:
+        access_token = auth_client.access_token
+
+    if auth_client.realm_id is None:
+        raise ValueError('Realm id not specified.')
+
+    response = qbo_data_call(auth_client.access_token, 
+                             auth_client.realm_id, 
+                             type='get_taxcodes')
+    
+    
+
+    taxcodes = json.loads(response.content)
+    #print(taxcodes)
+    taxrates = dict()
+
+    for t in taxcodes['QueryResponse']['TaxCode']:
+        taxrates[t['Description']] = t['Id']
+
+    print(taxrates)
+    if not response.ok:
+        return HttpResponse(' '.join([response.content, str(response.status_code)]))
+    else:
+        return HttpResponse(json.dumps(taxrates), content_type='application/json')
 
 def import_invoice(request):
     auth_client = AuthClient(
@@ -274,7 +309,7 @@ def import_invoice(request):
       "Line": [
         {
           "DetailType": "SalesItemLineDetail", 
-          "Amount": 500.0, 
+          "Amount": request.GET.get('amount'), 
           "SalesItemLineDetail": {
             "ItemRef": {
               "name": "I phone", 
@@ -291,15 +326,15 @@ def import_invoice(request):
       "CustomerRef": {
         "value": "15"
       },
-      "TxnDate": "2019-01-15",
+      "TxnDate": request.GET.get('txn_date'),
       "DueDate": "2019-03-18",
       "GlobalTaxCalculation": "TaxExcluded",
     }
 
     response = qbo_data_call(auth_client.access_token, 
                              auth_client.realm_id, 
-                             type='import_invoice')
-                             #payload=payload)
+                             type='import_invoice',
+                             payload=payload)
     
     print(response.content)
     if not response.ok:

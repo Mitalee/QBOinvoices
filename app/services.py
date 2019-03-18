@@ -20,7 +20,7 @@ def qbo_api_call(access_token, realm_id):
     }
     return requests.get('{0}{1}'.format(base_url, route), headers=headers)
 
-def qbo_data_call(access_token, realm_id, type):
+def qbo_data_call(access_token, realm_id, type, payload=None):
     """[summary]
     
     """
@@ -33,6 +33,8 @@ def qbo_data_call(access_token, realm_id, type):
         route = '/v3/company/{0}/invoice'.format(realm_id)
     elif type == 'companyinfo':
         route = '/v3/company/{0}/companyinfo/{0}'.format(realm_id)
+    elif type == 'get_taxcodes':
+        route = '/v3/company/{0}/query?query=select%20%2a%20from%20taxcode'.format(realm_id)
 
     auth_header = 'Bearer {0}'.format(access_token)
     headers = {
@@ -40,31 +42,31 @@ def qbo_data_call(access_token, realm_id, type):
         'Accept': 'application/json',
         'Content-Type' : 'application/json;charset=utf-8'
     }
-    payload = {
-      "Line": [
-        {
-          "DetailType": "SalesItemLineDetail", 
-          "Amount": 500.0, 
-          "SalesItemLineDetail": {
-            "ItemRef": {
-              "name": "I phone", 
-              "value": "3"
-            },
-            "Qty": 1,
-            "TaxCodeRef":
-                {
-                "value": "14"
-                }
-          }
-        }
-      ], 
-      "CustomerRef": {
-        "value": "15"
-      },
-      "TxnDate": "2019-01-10",
-      "DueDate": "2019-03-18",
-      "GlobalTaxCalculation": "TaxExcluded",
-    }
+    # payload = {
+    #   "Line": [
+    #     {
+    #       "DetailType": "SalesItemLineDetail", 
+    #       "Amount": 500.0, 
+    #       "SalesItemLineDetail": {
+    #         "ItemRef": {
+    #           "name": "I phone", 
+    #           "value": "3"
+    #         },
+    #         "Qty": 1,
+    #         "TaxCodeRef":
+    #             {
+    #             "value": "14"
+    #             }
+    #       }
+    #     }
+    #   ], 
+    #   "CustomerRef": {
+    #     "value": "15"
+    #   },
+    #   "TxnDate": "2019-01-10",
+    #   "DueDate": "2019-03-18",
+    #   "GlobalTaxCalculation": "TaxExcluded",
+    # }
 
     # TxnDate
     # GlobalTaxCalculation

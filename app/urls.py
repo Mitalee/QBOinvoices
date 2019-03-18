@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^user_info/?$', views.user_info, name='user_info'),
     url(r'^mytokens/?$', views.mytokens, name='mytokens'),
     url(r'^newAToken/?$', views.get_access_from_refresh, name='get_access_from_refresh'),
+    url(r'^getTaxcodes/?$', views.get_taxcodes, name='get_taxcodes'),
     url(r'^importInvoice/?$', views.import_invoice, name='import_invoice'),
     url(r'^migration/?$', views.migration, name='migration'),
 ]
