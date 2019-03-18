@@ -58,6 +58,28 @@
                     $("#result").append("<br><br>REFRESH TOKEN IS:" + data.refresh_token);
                 });
             }
+            function import_invoice() {
+                $("#result").html('Loading...');
+                input_data = {'customer_ref': $('#customer_ref').val(),
+                               'txn_date': $('#txn_date').val(),
+                               'item': $('#item').val(),
+                               'amount': $('#amount').val() 
+                                };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/app/importInvoice',
+                        data: input_data,
+                        }).done(function(response, status) {
+                             invoice = JSON.parse(response);
+                             console.log(response);
+                             console.log(invoice);
+                             $("#result").html("INVOICE NUMBER:" + invoice.Invoice.DocNumber);
+                             $("#result").append("<br>INVOICE DATE:" + invoice.Invoice.TxnDate);
+                             $("#result").append("<br>INVOICE ID:" + invoice.Invoice.Id);
+                        }).fail(function(response, status){
+                            alert('failed!');
+                        }); //end fail function
+                    }
         </script>
     </head>
     <body>
@@ -75,7 +97,14 @@
             <button onclick="myTokens()">My Tokens</button>
             <button onclick="new_access_token()">Get New Access Token</button>
             
-            <br><br>
+            <br>
+            <br><input type=text id="customer_ref" placeholder="customer_ref"/>
+            <br><input type=text id="txn_date" placeholder="txn_date"/>
+            <br><input type=text id="item" placeholder="item"/>
+            <br><input type=text id="location" placeholder="location"/>
+            <br><input type=text id="amount" placeholder="Amount"/>
+            <br><button onclick="import_invoice()">Import Invoice</button>
+            <br>
             <div><code id="result"></code></div>
         </div>
     </body>

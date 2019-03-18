@@ -13,7 +13,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServer
 from django.conf import settings
 from django.core import serializers
 
-from app.services import qbo_api_call
+from app.services import qbo_api_call, qbo_data_call
 
 # Create your views here.
 def index(request):
@@ -251,6 +251,61 @@ def revoke(request):
         print(e.intuit_tid)
     return HttpResponse('Revoke successful')
 
+
+def import_invoice(request):
+    auth_client = AuthClient(
+        settings.CLIENT_ID, 
+        settings.CLIENT_SECRET, 
+        settings.REDIRECT_URI, 
+        settings.ENVIRONMENT, 
+        access_token=request.session.get('access_token', None), 
+        refresh_token=request.session.get('refresh_token', None), 
+        realm_id=request.session.get('realm_id', None),
+    )
+
+    print('CUSTOMER IS: ', request.GET.get('customer_ref'))
+    if auth_client.access_token is not None:
+        access_token = auth_client.access_token
+
+    if auth_client.realm_id is None:
+        raise ValueError('Realm id not specified.')
+
+    payload = {
+      "Line": [
+        {
+          "DetailType": "SalesItemLineDetail", 
+          "Amount": 500.0, 
+          "SalesItemLineDetail": {
+            "ItemRef": {
+              "name": "I phone", 
+              "value": "3"
+            },
+            "Qty": 1,
+            "TaxCodeRef":
+                {
+                "value": "14"
+                }
+          }
+        }
+      ], 
+      "CustomerRef": {
+        "value": "15"
+      },
+      "TxnDate": "2019-01-15",
+      "DueDate": "2019-03-18",
+      "GlobalTaxCalculation": "TaxExcluded",
+    }
+
+    response = qbo_data_call(auth_client.access_token, 
+                             auth_client.realm_id, 
+                             type='import_invoice')
+                             #payload=payload)
+    
+    print(response.content)
+    if not response.ok:
+        return HttpResponse(' '.join([response.content, str(response.status_code)]))
+    else:
+        return HttpResponse(response.content)
 
 def migration(request):
     auth_client = AuthClient(
