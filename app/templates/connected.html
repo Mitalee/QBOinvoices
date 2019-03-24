@@ -70,7 +70,7 @@
                                                     +'"> '+key);
                     }
 
-                })
+                });
             }
             function import_invoice() {
                 $("#result").html('Loading...');
@@ -95,6 +95,43 @@
                             alert('failed!');
                         }); //end fail function
                     }
+
+            function getSales() {
+                $("#result").html('Loading...');
+                $.get("/app/getsales", function (data) {
+                    console.log(data);
+                    //console.log(typeof(data));
+                    for (var row in data) {
+                         $("#result").append(row);
+                    }
+                });
+            }
+
+            function MarginzSalesFn() {
+                $("#result").html('Loading...');
+                $.get("/app/getmarginzsales", function (data) {
+                    console.log(data);
+                    console.log(typeof(data));
+                    $("#result").html('');
+                    for (var row in data) {
+                        console.log(row);
+                        $("#result").append('<br>'+row+'-'+JSON.stringify(data[row]));
+                    }
+                });
+            }
+
+            function GetPercentagesAndCOP() {
+                $("#result").html('Loading...');
+                $.get("/app/GetPercentagesAndCOP", function (data) {
+                    console.log(data);
+                    //console.log(typeof(data));
+                    $("#result").html('');
+                    for (var row in data) {
+                        console.log(row);
+                        $("#result").append('<br>'+row+'-'+JSON.stringify(data[row]));
+                    }
+                });
+            }
         </script>
     </head>
     <body>
@@ -113,6 +150,9 @@
             <button onclick="new_access_token()">Get New Access Token</button>
             <br>
             <button onclick="getTaxcodes()">Get TaxCodes</button>
+            <button onclick="getSales()">Get Sales</button>
+            <button onclick="MarginzSalesFn()">Marginz Sales Fn Call</button>
+            <button onclick="GetPercentagesAndCOP()">Get Percentages and COP</button>
             <div id="taxcode_select"></div>
             <br>
             <br><input type=text id="customer_ref" placeholder="customer_ref"/>
@@ -121,6 +161,7 @@
             <br><input type=text id="location" placeholder="location"/>
             <br><input type=text id="amount" placeholder="Amount"/>
             <br><button onclick="import_invoice()">Import Invoice</button>
+
             <br>
             <div><code id="result"></code></div>
         </div>

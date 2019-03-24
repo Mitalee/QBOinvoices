@@ -25,7 +25,7 @@ SECRET_KEY = 'v1lpa3e#c__brq#htp@v_&m!t1!7ii)9(qjqh$3a+j$hyj_^&n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['d545878c.ngrok.io']
 
 
 # Application definition
@@ -123,11 +123,19 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"), ]
 
 # OAauth2 config here
-CLIENT_ID = 'Q0r1fQPEsBfUJ1xLGSzTvwM57pqUvDzkrq23uKQu249EgdlHvg'
-CLIENT_SECRET = 'mFMkzU7nyee0vUerAsaxpOERjzUU3FgWbhTAmQQk'
-REDIRECT_URI = 'http://localhost:8000/app/callback'
-ENVIRONMENT = 'sandbox'
-DISCOVERY_DOCUMENT = 'https://developer.api.intuit.com/.well-known/openid_sandbox_configuration/'
+# CLIENT_ID = 'Q0r1fQPEsBfUJ1xLGSzTvwM57pqUvDzkrq23uKQu249EgdlHvg'
+# CLIENT_SECRET = 'mFMkzU7nyee0vUerAsaxpOERjzUU3FgWbhTAmQQk'
+# REDIRECT_URI = 'http://localhost:8000/app/callback'
+# ENVIRONMENT = 'sandbox'
+# DISCOVERY_DOCUMENT = 'https://developer.api.intuit.com/.well-known/openid_sandbox_configuration/'
+# TOKEN_ENDPOINT = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+
+#Oauth2 config prod
+CLIENT_ID = 'Q04lW7ulfm1AgnsalmNzb0T7Jn80iSpxWKgsSdEoJubg3klG53'
+CLIENT_SECRET = 'G63rW6lqYDKpx3w9YrSlMVkNUKDgvo34O8iTUVay'
+REDIRECT_URI = 'https://d545878c.ngrok.io/app/callback'
+ENVIRONMENT = 'production'
+DISCOVERY_DOCUMENT = 'https://developer.api.intuit.com/.well-known/openid-configuration'
 TOKEN_ENDPOINT = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
 
 # QBO Base URLs

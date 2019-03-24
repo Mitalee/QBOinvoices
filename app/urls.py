@@ -20,5 +20,10 @@ urlpatterns = [
     url(r'^newAToken/?$', views.get_access_from_refresh, name='get_access_from_refresh'),
     url(r'^getTaxcodes/?$', views.get_taxcodes, name='get_taxcodes'),
     url(r'^importInvoice/?$', views.import_invoice, name='import_invoice'),
+    url(r'^getsales/?$', views.get_sales, name='get_sales'),
+    url(r'^getmarginzsales/?$', views.get_marginz_sales_fn, name='get_marginz_sales_fn'),
+    url(r'^GetPercentagesAndCOP/?$', views.get_percentages_COP_fn, name='get_percentages_COP_fn'),
     url(r'^migration/?$', views.migration, name='migration'),
 ]
+
+

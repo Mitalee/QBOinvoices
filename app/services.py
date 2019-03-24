@@ -29,12 +29,17 @@ def qbo_data_call(access_token, realm_id, type, payload=None):
     else:
         base_url =  settings.QBO_BASE_SANDBOX
 
+
     if type == 'import_invoice':
         route = '/v3/company/{0}/invoice'.format(realm_id)
     elif type == 'companyinfo':
         route = '/v3/company/{0}/companyinfo/{0}'.format(realm_id)
     elif type == 'get_taxcodes':
         route = '/v3/company/{0}/query?query=select%20%2a%20from%20taxcode'.format(realm_id)
+    elif type == 'get_sales':
+        route = '/v3/company/{0}/reports/ItemSales?date_macro=This%20Fiscal%20Year-to-date'.format(realm_id)
+    elif type == 'get_inventory':
+        route = '/v3/company/{0}/query?query=select%20Name%2c%20PurchaseCost%2c%20QtyOnHand%2c%20Type%20from%20item'.format(realm_id)
 
     auth_header = 'Bearer {0}'.format(access_token)
     headers = {
@@ -42,40 +47,17 @@ def qbo_data_call(access_token, realm_id, type, payload=None):
         'Accept': 'application/json',
         'Content-Type' : 'application/json;charset=utf-8'
     }
-    # payload = {
-    #   "Line": [
-    #     {
-    #       "DetailType": "SalesItemLineDetail", 
-    #       "Amount": 500.0, 
-    #       "SalesItemLineDetail": {
-    #         "ItemRef": {
-    #           "name": "I phone", 
-    #           "value": "3"
-    #         },
-    #         "Qty": 1,
-    #         "TaxCodeRef":
-    #             {
-    #             "value": "14"
-    #             }
-    #       }
-    #     }
-    #   ], 
-    #   "CustomerRef": {
-    #     "value": "15"
-    #   },
-    #   "TxnDate": "2019-01-10",
-    #   "DueDate": "2019-03-18",
-    #   "GlobalTaxCalculation": "TaxExcluded",
-    # }
 
-    # TxnDate
-    # GlobalTaxCalculation
-    # TransactionLocationType
-    # TxnTaxDetail
-        #TxnTaxCodeRef
     print('SENDING DATA')
     url = '{0}{1}'.format(base_url, route)
     print('URL IS: ', url)
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
+    if payload is None:
+        print('SENDING WITHOUT PAYLOAD..')
+        r = requests.get(url, headers=headers)
+    else:
+        print('SENDING WITH PAYLOAD..')
+        r = requests.get(url, data=json.dumps(payload), headers=headers)
+
     print("RESPONSE IS", r)
+    #print('RESPONSE CONTENT IS: ', r.content)
     return r
