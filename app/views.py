@@ -251,6 +251,46 @@ def revoke(request):
         print(e.intuit_tid)
     return HttpResponse('Revoke successful')
 
+product_names_in_scenario = ['Amida TM 500gm', 'Lifuran TM 50ML']
+
+product_rm_allocation = {
+                    'Lifuran TM 50ML': {
+                        'Lifuran 50ML': 1,
+                        'Lifuran Filling Service':2,
+                        'Labels':1,
+                        'Bottle 50ML':1},
+                    'Amida TM 500gm': {
+                        'Amida 500GM':1,
+                        'Packaging Amida':1,
+                        'Labels':4,
+                        'Box of Amida':1}
+                    }
+
+
+purchase_cost_of_raw_materials = {
+                        'Lifuran 50ML': 50,
+                        'Lifuran Filling Service':25,
+                        'Labels':3,
+                        'Bottle 50ML':20,
+                        'Amida 500GM':65,
+                        'Packaging Amida':30,
+                        'Box of Amida':35
+}
+
+product_DL_DOH_allocation = {
+                        'Lifuran TM 50ML': {
+                            'DL': 0.60,
+                            'DOH':0.30
+                            },
+                        'Amida TM 500gm': {
+                            'DL': 0.40,
+                            'DOH':0.10
+                            }
+                    }
+
+
+
+DL_DOH = [{'DL':200,'DOH':350}]
 
 def get_unit_economics_table(request, product_info):
     table = []
@@ -271,22 +311,35 @@ def get_unit_economics_table(request, product_info):
 def get_percentages_COP_fn(request):
     #change this for different companies
     product_names_in_scenario = ['Amida TM 500gm', 'Lifuran TM 50ML']
-    product_info = get_marginz_sales_fn(request)
+    product_info, inventory = get_marginz_sales_fn(request)
     context = []
 
-    cost_of_production_for_products = dict()
+    #cost_of_production = dict()
+    product_costs_all = dict()
+    
     for product_name in product_names_in_scenario:
         # initialize a product dict to store all attributes
-        cost_of_production_dict = dict()
+        
         #cost_of_production_dict['Product'] = product_name
 
-        cost_of_production_dict['units_produced'] = product_info[product_name]['product_quantity_on_hand'] +\
-                                                    product_info[product_name]['product_quantity_sold']
+        product_costs_all[product_name]['number_of_finished_goods'] = product_info[product_name]['product_quantity_on_hand'] +\
+                                                                      product_info[product_name]['product_quantity_sold']
 
+        rm_allocation = product_rm_allocation[product_name]
+        product_costs_all[product_name] = {k:v*purchase_cost_of_raw_materials[k] for k,v in rm_allocation.items() if k in purchase_cost_of_raw_materials}
+        #print(rm_cost)
+        DL_DOH_allocation = product_DL_DOH_allocation[product_name]
+        #print(DL_DOH_allocation)
+        DL_DOH_cost = {k:v*DL_DOH[k] for k,v in DL_DOH_allocation.items()}
+        #print(DL_DOH_cost)
+        #print(rm_cost+DL_DOH_cost)
+        product_costs_all[product_name].update(DL_DOH_cost)
+        product_costs_all[product_name]['cost_per_unit'] = sum(product_costs_all[product_name].values())
+        
+        #cost_of_production_for_products[product_name] = cost_of_production_dict
+        #cost_of_production.append(product_costs_all)
 
-        cost_of_production_for_products[product_name] = cost_of_production_dict
-
-    context.append({'COP': cost_of_production_for_products})
+    context.append({'COP': product_costs_all})
     print('COP without UNIT ECON TABLE is: ', context)
     
 
@@ -301,7 +354,6 @@ def get_marginz_sales_fn(request):
 
     #change this for different companies
     product_names_in_scenario = ['Amida TM 500gm', 'Lifuran TM 50ML']
-
 
     auth_client = AuthClient(
         settings.CLIENT_ID, 
@@ -417,8 +469,12 @@ def get_marginz_sales_fn(request):
 
     number_of_products = len(product_names)
 
-    return product_sales_info
+    return (product_sales_info, inventory)
     #return HttpResponse(json.dumps(product_sales_info), content_type='application/json')
+
+
+
+
 
 def get_sales(request):
     auth_client = AuthClient(
