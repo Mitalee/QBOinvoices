@@ -290,9 +290,9 @@ product_DL_DOH_allocation = {
 
 
 
-DL_DOH = [{'DL':200,'DOH':350}]
+DL_DOH = {'DL':200,'DOH':350}
 
-def get_unit_economics_table(request, product_info):
+def get_unit_economics_table(request, product_info, cost_of_production):
     table = []
 
     for product in product_info:
@@ -302,6 +302,9 @@ def get_unit_economics_table(request, product_info):
         table_column['product_sales'] = product_info[product]['product_quantity_sold'] * \
                                         product_info[product]['product_price']
         table_column['units_sold'] = product_info[product]['product_quantity_sold']
+        table_column['price_per_unit'] = product_info[product]['product_price']
+        table_column['cost_per_unit'] = cost_of_production[product]['cost_per_unit']
+        table_column['profit_per_unit'] = table_column['price_per_unit'] - table_column['cost_per_unit']
 
         table.append({ product: table_column })
     
@@ -314,36 +317,44 @@ def get_percentages_COP_fn(request):
     product_info, inventory = get_marginz_sales_fn(request)
     context = []
 
-    #cost_of_production = dict()
-    product_costs_all = dict()
+    print('PRODUCT RM ALLOCATION IS: ', product_rm_allocation)
+    print('DL DOH IS: ', DL_DOH)
+    print('DL DOH ALLOCATION IS: ', product_DL_DOH_allocation)
+
+    cost_of_production = dict()
     
     for product_name in product_names_in_scenario:
         # initialize a product dict to store all attributes
+        product_costs_all = dict()
+        print('PRODUCT NAME IS: ', product_name)
         
-        #cost_of_production_dict['Product'] = product_name
-
-        product_costs_all[product_name]['number_of_finished_goods'] = product_info[product_name]['product_quantity_on_hand'] +\
-                                                                      product_info[product_name]['product_quantity_sold']
-
         rm_allocation = product_rm_allocation[product_name]
-        product_costs_all[product_name] = {k:v*purchase_cost_of_raw_materials[k] for k,v in rm_allocation.items() if k in purchase_cost_of_raw_materials}
-        #print(rm_cost)
-        DL_DOH_allocation = product_DL_DOH_allocation[product_name]
-        #print(DL_DOH_allocation)
-        DL_DOH_cost = {k:v*DL_DOH[k] for k,v in DL_DOH_allocation.items()}
-        #print(DL_DOH_cost)
-        #print(rm_cost+DL_DOH_cost)
-        product_costs_all[product_name].update(DL_DOH_cost)
-        product_costs_all[product_name]['cost_per_unit'] = sum(product_costs_all[product_name].values())
+        product_costs_all = {k:v*purchase_cost_of_raw_materials[k] for k,v in rm_allocation.items() if k in purchase_cost_of_raw_materials}
+        print('RM COSTS ARE:', product_costs_all)
         
-        #cost_of_production_for_products[product_name] = cost_of_production_dict
-        #cost_of_production.append(product_costs_all)
 
-    context.append({'COP': product_costs_all})
+        DL_DOH_allocation = product_DL_DOH_allocation[product_name]
+        DL_DOH_cost = {k:v*DL_DOH[k] for k,v in DL_DOH_allocation.items()}
+        print('DL_DOH COSTS ARE:', product_costs_all)
+        product_costs_all.update(DL_DOH_cost)
+        
+
+        product_costs_all['number_of_finished_goods'] = product_info[product_name]['product_quantity_on_hand'] +\
+                                                              product_info[product_name]['product_quantity_sold']
+        product_costs_all['cost_per_unit'] = sum(product_costs_all.values())
+        print('PER UNIT COSTS ARE:', product_costs_all)
+        
+
+        #cost_of_production_for_products[product_name] = cost_of_production_dict
+        cost_of_production[product_name] = product_costs_all
+        print('COST OF PRODUCTION IS: ', cost_of_production)
+
+
+    context.append({'COP': cost_of_production})
     print('COP without UNIT ECON TABLE is: ', context)
     
 
-    unit_econ_table = get_unit_economics_table(request, product_info)
+    unit_econ_table = get_unit_economics_table(request, product_info, cost_of_production)
     context.append(unit_econ_table)
 
     print('CONTEXT WITH UNIT ECON TABLE: ', context)
@@ -413,11 +424,9 @@ def get_marginz_sales_fn(request):
                              type='get_inventory')
     
     data_call_response = json.loads(response_inventory.content)
-    #print('RESPONSE IS: ', data_call_response)
 
     inventory = data_call_response['QueryResponse']['Item']
 
-    #print('INVENTORY IS: ', inventory)
 
     all_inventory_names = [inventory_item['Name'] for inventory_item in inventory]
 
@@ -426,29 +435,12 @@ def get_marginz_sales_fn(request):
 
     inventory_name_to_quantity_map = {inventory_item['Name']: inventory_item['QtyOnHand'] if 'QtyOnHand' in inventory_item else 0 
                                         for inventory_item in inventory}
-    #inventory_name_to_quantity_map = {inventory_item.name: inventory_item.quantity_on_hand if inventory_item.quantity_on_hand else 0
-     #                                 for inventory_item in inventory}
 
-    #print('INVENTORY NAME TO QUANTITY MAP IS: ', inventory_name_to_quantity_map)
     
     product_names = [inventory_name for inventory_name in all_inventory_names
                          if inventory_name in product_names_in_scenario]
 
     print('PRODUCT NAMES ARE: ', product_names)
-    # product_sales_info = dict()
-    # product_sales_info['product_quantity_sold'] = []
-    # product_sales_info['product_price'] = []
-    # product_sales_info['product_quantity_on_hand'] = []
-
-    # Check for product name in ItemSales report and if it exists, retrieve Avg. Price and Quantity??
-    # for product_name in product_names:
-    #     product_sales_info['product_quantity_on_hand'].append(inventory_name_to_quantity_map[product_name])
-    #     try:
-    #         product_sales_info['product_quantity_sold'].append(float(product_sale_details[product_name]['quantity']))
-    #         product_sales_info['product_price'].append(float(product_sale_details[product_name]['price']))
-    #     except:
-    #         product_sales_info['product_quantity_sold'].append(0)
-    #         product_sales_info['product_price'].append(0)
 
 
     product_sales_info = dict()
