@@ -327,20 +327,24 @@ def get_percentages_COP_fn(request):
         # initialize a product dict to store all attributes
         product_costs_all = dict()
         print('PRODUCT NAME IS: ', product_name)
-        
-        rm_allocation = product_rm_allocation[product_name]
-        product_costs_all = {k:v*purchase_cost_of_raw_materials[k] for k,v in rm_allocation.items() if k in purchase_cost_of_raw_materials}
-        print('RM COSTS ARE:', product_costs_all)
-        
 
-        DL_DOH_allocation = product_DL_DOH_allocation[product_name]
-        DL_DOH_cost = {k:v*DL_DOH[k] for k,v in DL_DOH_allocation.items()}
-        print('DL_DOH COSTS ARE:', product_costs_all)
-        product_costs_all.update(DL_DOH_cost)
-        
 
         product_costs_all['number_of_finished_goods'] = product_info[product_name]['product_quantity_on_hand'] +\
                                                               product_info[product_name]['product_quantity_sold']
+
+
+        rm_allocation = product_rm_allocation[product_name]
+        rm_cost = {k:v*purchase_cost_of_raw_materials[k] for k,v in rm_allocation.items() if k in purchase_cost_of_raw_materials}
+        product_costs_all.update(rm_cost)
+        print(' FINISHED GOODS AND RM COSTS ARE:', product_costs_all)
+        
+
+        DL_DOH_allocation = product_DL_DOH_allocation[product_name]
+        DL_DOH_cost = {k:v*DL_DOH[k]/product_costs_all['number_of_finished_goods'] for k,v in DL_DOH_allocation.items()}
+        print('DL_DOH COSTS ARE:', product_costs_all)
+        product_costs_all.update(DL_DOH_cost)
+
+
         product_costs_all['cost_per_unit'] = sum(product_costs_all.values())
         print('PER UNIT COSTS ARE:', product_costs_all)
         

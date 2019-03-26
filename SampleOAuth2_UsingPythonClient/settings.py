@@ -25,7 +25,7 @@ SECRET_KEY = 'v1lpa3e#c__brq#htp@v_&m!t1!7ii)9(qjqh$3a+j$hyj_^&n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost','b8aa21ca.ngrok.io']
 
 
 # Application definition
@@ -133,7 +133,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"), ]
 #Oauth2 config prod
 CLIENT_ID = 'Q04lW7ulfm1AgnsalmNzb0T7Jn80iSpxWKgsSdEoJubg3klG53'
 CLIENT_SECRET = 'G63rW6lqYDKpx3w9YrSlMVkNUKDgvo34O8iTUVay'
-REDIRECT_URI = 'https://d545878c.ngrok.io/app/callback'
+REDIRECT_URI = 'https://b8aa21ca.ngrok.io/app/callback'
 ENVIRONMENT = 'production'
 DISCOVERY_DOCUMENT = 'https://developer.api.intuit.com/.well-known/openid-configuration'
 TOKEN_ENDPOINT = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
