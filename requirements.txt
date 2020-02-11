@@ -3,7 +3,7 @@ attrs==19.1.0
 certifi==2019.3.9
 chardet==3.0.4
 coverage==4.0.3
-Django==2.1.7
+Django==2.2.10
 ecdsa==0.13
 enum-compat==0.0.2
 enum34==1.1.6
